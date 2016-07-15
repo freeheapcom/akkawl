@@ -12,6 +12,10 @@ drawler - https://github.com/freeheapcom/drawler
  sbt clean package
  ```
  
+## Prerequisites 
+ * Start 2 storage engines: *Redis* and *cassandra*
+ * Change the config param of the file [app.properties](https://github.com/freeheapcom/akkawl/blob/master/conf/app.properties)
+
 ## Run
  ```
  chmod +x conf/env.sh
