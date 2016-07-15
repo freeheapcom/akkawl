@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="SBT: uk.org.lidalia:lidalia-slf4j-ext:1.0.0:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/uk.org.lidalia/lidalia-slf4j-ext/jars/lidalia-slf4j-ext-1.0.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/uk.org.lidalia/lidalia-slf4j-ext/srcs/lidalia-slf4j-ext-1.0.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

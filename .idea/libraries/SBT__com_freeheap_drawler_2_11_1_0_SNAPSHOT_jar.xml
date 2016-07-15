@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="SBT: com.freeheap:drawler_2.11:1.0-SNAPSHOT:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/local/com.freeheap/drawler_2.11/1.0-SNAPSHOT/jars/drawler_2.11.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/local/com.freeheap/drawler_2.11/1.0-SNAPSHOT/srcs/drawler_2.11-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="SBT: org.gagravarr:vorbis-java-core:0.1:tests:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.gagravarr/vorbis-java-core/jars/vorbis-java-core-0.1-tests.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

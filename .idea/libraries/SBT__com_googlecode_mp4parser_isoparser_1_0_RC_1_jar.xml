@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="SBT: com.googlecode.mp4parser:isoparser:1.0-RC-1:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/com.googlecode.mp4parser/isoparser/jars/isoparser-1.0-RC-1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/com.googlecode.mp4parser/isoparser/srcs/isoparser-1.0-RC-1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

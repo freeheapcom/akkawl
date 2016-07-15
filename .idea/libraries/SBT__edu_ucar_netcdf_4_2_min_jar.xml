@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="SBT: edu.ucar:netcdf:4.2-min:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/edu.ucar/netcdf/jars/netcdf-4.2-min.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/edu.ucar/netcdf/srcs/netcdf-4.2-min-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
