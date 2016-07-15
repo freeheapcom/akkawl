@@ -15,6 +15,7 @@ drawler - https://github.com/freeheapcom/drawler
 ## Prerequisites 
  * Start 2 storage engines: *Redis* and *cassandra*
  * Change the config param of the file [app.properties](https://github.com/freeheapcom/akkawl/blob/master/conf/app.properties)
+ * Put some *urls* to redis queue defined at [queue](https://github.com/freeheapcom/akkawl/blob/master/conf/app.properties#L3) by issue command like: `redis-cli lpush http://www.nytimes.com`
 
 ## Run
  ```
