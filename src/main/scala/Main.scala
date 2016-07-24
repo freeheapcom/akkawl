@@ -44,7 +44,7 @@ object Main {
     val coord = system.actorOf(Coordinator(redisHost, rQueue, qBatchSize, coordPeriodic))
     val ldRouter = system.actorOf(RoundRobinPool(ldSize).props(Loader(redisHost, rQueue, rSet, se)))
     val prRouter = system.actorOf(RoundRobinPool(prSize).props(DataParser(ldRouter)))
-    val crRouter = system.actorOf(RoundRobinPool(crSize).props(Crawler(coord, prRouter, redisHost, rSet)))
+    system.actorOf(RoundRobinPool(crSize).props(Crawler(coord, prRouter, redisHost, rSet)))
   }
 }
 
