@@ -22,5 +22,3 @@ project/plugins/project/
 # idea
 .idea/
 *.iws
-.idea/workspace.xml
-.idea/*
