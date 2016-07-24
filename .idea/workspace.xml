@@ -1,21 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="dec7da28-4ae7-464b-ad4f-26f4349ed9e6" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/robots/Checker.scala" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/robots/Downloader.scala" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/robots/Robots.scala" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/robots/RobotsFactory.scala" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/robots/RuleSet.scala" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/robots/TLDList.scala" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/robots/Utils.scala" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/robots/WebURL.scala" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/SBT__org_apache_httpcomponents_httpclient_4_4_jar.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/SBT__org_apache_httpcomponents_httpcore_4_4_jar.xml" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules/akkawl.iml" afterPath="$PROJECT_DIR$/.idea/modules/akkawl.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.sbt" afterPath="$PROJECT_DIR$/build.sbt" />
-    </list>
+    <list default="true" id="dec7da28-4ae7-464b-ad4f-26f4349ed9e6" name="Default" comment="" />
     <ignored path="akkawl.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -56,8 +42,8 @@
       <file leaf-file-name="Crawler.scala" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/com/freeheap/akkawl/core/Crawler.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="83" column="39" selection-start-line="83" selection-start-column="39" selection-end-line="83" selection-end-column="39" />
+            <state relative-caret-position="1245">
+              <caret line="83" column="18" selection-start-line="83" selection-start-column="18" selection-end-line="83" selection-end-column="18" />
               <folding>
                 <element signature="e#34#64#0" expanded="true" />
               </folding>
@@ -65,21 +51,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PageFetcher.java" pinned="false" current-in-tab="true">
-        <entry file="jar://$USER_HOME$/.ideaLibSources/crawler4j-4.2-sources.jar!/edu/uci/ics/crawler4j/fetcher/PageFetcher.java">
+      <file leaf-file-name="RobotsFactory.scala" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/robots/RobotsFactory.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="263" column="32" selection-start-line="263" selection-start-column="32" selection-end-line="263" selection-end-column="32" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Parser.java" pinned="false" current-in-tab="false">
-        <entry file="jar://$USER_HOME$/.ivy2/cache/edu.uci.ics/crawler4j/srcs/crawler4j-4.2-sources.jar!/edu/uci/ics/crawler4j/parser/Parser.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1260">
-              <caret line="135" column="19" selection-start-line="135" selection-start-column="19" selection-end-line="135" selection-end-column="19" />
+            <state relative-caret-position="150">
+              <caret line="11" column="38" selection-start-line="11" selection-start-column="38" selection-end-line="11" selection-end-column="38" />
               <folding />
             </state>
           </provider>
@@ -411,20 +387,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="logs" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="akkawl" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="akkawl" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="conf" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -925,12 +887,12 @@
       <workItem from="1468571653561" duration="3951000" />
       <workItem from="1469115654176" duration="1460000" />
       <workItem from="1469380468398" duration="228000" />
-      <workItem from="1469380749658" duration="435000" />
+      <workItem from="1469380749658" duration="989000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="35837000" />
+    <option name="totallyTimeSpent" value="36391000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="43" y="-4" width="1323" height="772" extended-state="6" />
@@ -1276,14 +1238,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/robots/RobotsFactory.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/robots/Robots.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -1348,24 +1302,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$USER_HOME$/.ivy2/cache/edu.uci.ics/crawler4j/srcs/crawler4j-4.2-sources.jar!/edu/uci/ics/crawler4j/parser/Parser.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1260">
-          <caret line="135" column="19" selection-start-line="135" selection-start-column="19" selection-end-line="135" selection-end-column="19" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/com/freeheap/akkawl/core/Crawler.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="83" column="39" selection-start-line="83" selection-start-column="39" selection-end-line="83" selection-end-column="39" />
-          <folding>
-            <element signature="e#34#64#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$PROJECT_DIR$/lib/crawler4j-4.2.jar!/edu/uci/ics/crawler4j/fetcher/PageFetcher.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="135">
@@ -1374,10 +1310,36 @@
         </state>
       </provider>
     </entry>
+    <entry file="jar://$USER_HOME$/.ivy2/cache/edu.uci.ics/crawler4j/srcs/crawler4j-4.2-sources.jar!/edu/uci/ics/crawler4j/parser/Parser.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1260">
+          <caret line="135" column="19" selection-start-line="135" selection-start-column="19" selection-end-line="135" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="jar://$USER_HOME$/.ideaLibSources/crawler4j-4.2-sources.jar!/edu/uci/ics/crawler4j/fetcher/PageFetcher.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="263" column="32" selection-start-line="263" selection-start-column="32" selection-end-line="263" selection-end-column="32" />
+        <state relative-caret-position="1935">
+          <caret line="256" column="47" selection-start-line="256" selection-start-column="47" selection-end-line="256" selection-end-column="47" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/com/freeheap/akkawl/core/Crawler.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1245">
+          <caret line="83" column="18" selection-start-line="83" selection-start-column="18" selection-end-line="83" selection-end-column="18" />
+          <folding>
+            <element signature="e#34#64#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/robots/RobotsFactory.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="11" column="38" selection-start-line="11" selection-start-column="38" selection-end-line="11" selection-end-column="38" />
           <folding />
         </state>
       </provider>
