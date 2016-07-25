@@ -3,7 +3,6 @@
 
 # sbt specific
 .cache
-.idea
 .history
 .lib/*
 lib/*
@@ -20,3 +19,5 @@ project/plugins/project/
 .worksheet
 
 # idea
+.idea
+.idea/*

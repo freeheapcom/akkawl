@@ -17,11 +17,11 @@ import scala.concurrent.duration.FiniteDuration
   * Created by william on 7/6/16.
   */
 object Crawler {
-  def apply(coord: ActorRef, parserRouter: ActorRef, rConn: String, rSet: String) =
-    Props(classOf[Crawler], coord, parserRouter, rConn, rSet)
+  def apply(coord: ActorRef, parserRouter: ActorRef, rConn: String, rSet: String, respectRobot: Boolean) =
+    Props(classOf[Crawler], coord, parserRouter, rConn, rSet, respectRobot)
 }
 
-class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String) extends Actor with ActorLogging {
+class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String, respectRobot: Boolean) extends Actor with ActorLogging {
   // For thread-safe
   val ls = LinkSet(rConn, rSet)
   val FILTERS: Pattern = Pattern.compile(".*(\\.(css|js|bmp|gif|jpe?g"
@@ -54,8 +54,12 @@ class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String) e
   }
 
   private def shouldVisit(url: String): Boolean = {
-    val normUrl: String = url.toLowerCase
-    !FILTERS.matcher(normUrl).matches && !lse(normUrl) && doesRobotAllow(url)
+    if (respectRobot) {
+       val normUrl: String = url.toLowerCase
+       !FILTERS.matcher(normUrl).matches && !lse(normUrl) && doesRobotAllow(url)
+    } else {
+      true
+    }
   }
 
   // TODO get robot.txt from Redis or directly from website and save to C* for later use
