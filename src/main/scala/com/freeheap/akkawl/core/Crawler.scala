@@ -24,7 +24,7 @@ object Crawler {
 class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String, respectRobot: Boolean) extends Actor with ActorLogging {
   // For thread-safe
   val ls = LinkSet(rConn, rSet)
-  val FILTERS: Pattern = Pattern.compile(".*(\\.(css|js|bmp|gif|jpe?g"
+  val FILTERS: Pattern = Pattern.compile(".*(\\.(css|js|bmp|gif|jpe?g|ico"
     + "|png|tiff?|mid|mp2|mp3|mp4" + "|wav|avi|mov|mpeg|ram|m4v|pdf"
     + "|rm|smil|wmv|swf|wma|zip|rar|gz))$")
 
@@ -53,12 +53,14 @@ class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String, r
       coord ! NeedMoreMsg
   }
 
+  //TODO: can't use one single queue here to check for visited links as well as unvisited links
+  //Need to re-work on this
   private def shouldVisit(url: String): Boolean = {
+    val normUrl: String = url.toLowerCase
     if (respectRobot) {
-       val normUrl: String = url.toLowerCase
        !FILTERS.matcher(normUrl).matches && !lse(normUrl) && doesRobotAllow(url)
     } else {
-      true
+      !FILTERS.matcher(normUrl).matches
     }
   }
 
