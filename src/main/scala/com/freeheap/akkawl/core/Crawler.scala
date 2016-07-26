@@ -53,14 +53,13 @@ class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String, r
       coord ! NeedMoreMsg
   }
 
-  //TODO: can't use one single queue here to check for visited links as well as unvisited links
-  //Need to re-work on this
   private def shouldVisit(url: String): Boolean = {
     val normUrl: String = url.toLowerCase
+    val visit = !FILTERS.matcher(normUrl).matches && !lse(normUrl)
     if (respectRobot) {
-       !FILTERS.matcher(normUrl).matches && !lse(normUrl) && doesRobotAllow(url)
+      visit && doesRobotAllow(url)
     } else {
-      !FILTERS.matcher(normUrl).matches
+      visit
     }
   }
 
