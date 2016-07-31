@@ -30,13 +30,15 @@ object Main {
     val rHash = props.getProperty("redis.hash", "robots")
 
     val casConnStr = props.getProperty("cas.conn", "localhost:9042")
-    val casKs = props.getProperty("cas.ks", "test")
-    val casTbl = props.getProperty("cas.tbl", "test")
+    val casKs = props.getProperty("cas.ks", "freeheap")
+    val casTbl = props.getProperty("cas.tbl", "crawled_data")
 
     val qBatchSize = props.getProperty("system.q.batchSize", "10").toInt
     val crSize = props.getProperty("system.cr.size", "2").toInt
     val prSize = props.getProperty("system.pr.size", "2").toInt
     val ldSize = props.getProperty("system.ld.size", "6").toInt
+
+    val respectRobot = props.getProperty("crawler.respectRobot", "true").toBoolean
 
     val coordPeriodic = props.getProperty("coord.periodic", "500").toInt
 
