@@ -68,7 +68,6 @@ class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String, r
     isValidDomain(domain) && !FILTERS.matcher(normUrl).matches && !lse(normUrl) && doesRobotAllow(domain, url)
   }
 
-
   private def isValidDomain(domain: String): Boolean = {
     Helper.isValidDomain(domain)
   }
