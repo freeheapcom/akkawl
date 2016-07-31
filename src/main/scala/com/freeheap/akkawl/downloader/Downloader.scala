@@ -1,5 +1,8 @@
 package com.freeheap.akkawl.downloader
 
+import java.net.URLEncoder
+
+import com.freeheap.akkawl.robots.WebURL
 import com.freeheap.akkawl.util.Logging
 import org.apache.http.{HttpResponse, HttpStatus}
 import org.apache.http.client.HttpClient
@@ -28,7 +31,12 @@ object Downloader extends Logging {
     download(client, HttpClientContext.create())(url)
   }
 
-  def normalizeUrl(url: String) = url.trim
+  def normalizeUrl(url: String) = {
+    val noExtrSpace = url.trim
+    val i = noExtrSpace.lastIndexOf('/')
+    val after = noExtrSpace.substring(i + 1)
+    noExtrSpace.substring(0, i + 1) + URLEncoder.encode(after, "UTF-8")
+  }
 
   def download(client: CloseableHttpClient, ctx: HttpClientContext)(iUrl: String): Option[String] = {
     var response: CloseableHttpResponse = null

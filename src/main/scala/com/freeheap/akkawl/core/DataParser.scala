@@ -23,7 +23,7 @@ class DataParser(loader: ActorRef) extends Actor with ActorLogging {
     val content: String = cpd.content
     if (content != null) {
       val parsedData = extractMainContent(content)
-      val outLinks = extractOutLinks(content)
+      val outLinks = extractOutLinks(cpd.domain, content)
       parsedData match {
         case Some(mainContent) =>
           loader ! StorageData(cpd.url, cpd.domain, mainContent, cpd.ts, outLinks)
@@ -35,11 +35,15 @@ class DataParser(loader: ActorRef) extends Actor with ActorLogging {
     }
   }
 
-  private[this] def extractOutLinks(content: String): Set[String] = {
+  private[this] def extractOutLinks(domain: String, content: String): Set[String] = {
     val doc = Jsoup.parse(content)
     val links = doc.select("a[href]")
     import scala.collection.JavaConversions._
-    links.map(link => link.attr("href").trim).toSet
+    links.map(link => {
+      val l = link.attr("href").trim
+      if (l.startsWith("/")) s"$domain/$l"
+      else l
+    }).toSet
   }
 
   val extractor = ArticleExtractor.INSTANCE

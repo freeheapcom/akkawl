@@ -48,7 +48,7 @@ class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String, r
   import context.dispatcher
 
   val tick =
-    context.system.scheduler.schedule(FiniteDuration(0, "millis"), FiniteDuration(20, "millis"), self, PeriodicM)
+    context.system.scheduler.schedule(FiniteDuration(0, "millis"), FiniteDuration(50, "millis"), self, PeriodicM)
 
   override def postStop() = tick.cancel()
 
