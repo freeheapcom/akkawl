@@ -20,8 +20,8 @@ export APP_OPTS="-XX:+UseConcMarkSweepGC"
 # export APP_LOG_DIR=../logs
 # export APP_LOGFILE=server.log
 #export APP_ROOT_LOGGER=INFO,DRFA
-#export APP_ROOT_LOGGER=INFO,console
-export APP_ROOT_LOGGER=TRACE,console
+export APP_ROOT_LOGGER=INFO,console
+#export APP_ROOT_LOGGER=TRACE,console
 
 # Daemonize
 export APP_PID_DIR=logs

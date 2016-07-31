@@ -15,7 +15,9 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-slf4j" % "2.4.8",
   "org.apache.httpcomponents" % "httpclient" % "4.5.2",
   "org.apache.httpcomponents" % "httpcore" % "4.4.5",
-  "com.kohlschutter.boilerpipe" % "boilerpipe-common" % "2.0-SNAPSHOT"
+  "commons-validator" % "commons-validator" % "1.4.0",
+  "com.kohlschutter.boilerpipe" % "boilerpipe-common" % "2.0-SNAPSHOT",
+  "org.jsoup" % "jsoup" % "1.9.2"
 )
 
 resolvers ++= Seq(

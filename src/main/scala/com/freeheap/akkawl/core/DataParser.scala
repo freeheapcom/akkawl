@@ -2,7 +2,9 @@ package com.freeheap.akkawl.core
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.freeheap.akkawl.message.{CrawledPageData, StorageData}
+import com.kohlschutter.boilerpipe.extractors.ArticleExtractor
 import edu.uci.ics.crawler4j.parser.{HtmlParseData, ParseData}
+import org.jsoup.Jsoup
 
 /**
   * Created by william on 7/6/16.
@@ -18,18 +20,37 @@ class DataParser(loader: ActorRef) extends Actor with ActorLogging {
   }
 
   private[this] def parseData(cpd: CrawledPageData): Unit = {
-    val parseData: ParseData = cpd.p.getParseData
-    if (parseData != null) {
-      parseData match {
-        case hpd: HtmlParseData =>
-          import scala.collection.JavaConversions._
-          val (url, domain, content, outlink) = (cpd.p.getWebURL.getURL, cpd.p.getWebURL.getDomain, hpd.getText, hpd.getOutgoingUrls.map(_.getURL).toSet)
-          loader ! StorageData(url, domain, content, cpd.ts, outlink)
-        case _ =>
+    val content: String = cpd.content
+    if (content != null) {
+      val parsedData = extractMainContent(content)
+      val outLinks = extractOutLinks(content)
+      parsedData match {
+        case Some(mainContent) =>
+          loader ! StorageData(cpd.url, cpd.domain, mainContent, cpd.ts, outLinks)
+        case None =>
           log.debug(s"Cannot parse html from data $cpd")
       }
     } else {
       log.debug("Couldn't parse the content of the page.")
+    }
+  }
+
+  private[this] def extractOutLinks(content: String): Set[String] = {
+    val doc = Jsoup.parse(content)
+    val links = doc.select("a[href]")
+    import scala.collection.JavaConversions._
+    links.map(link => link.attr("href").trim).toSet
+  }
+
+  val extractor = ArticleExtractor.INSTANCE
+
+  private[this] def extractMainContent(content: String): Option[String] = {
+    try {
+      Some(extractor.getText(content))
+    } catch {
+      case e: Throwable =>
+        log.error(s"Cannot extract main content of $content", e)
+        None
     }
   }
 }

@@ -27,6 +27,8 @@ object Main {
     val redisHost = props.getProperty("redis.hosts", "localhost:6379")
     val rQueue = props.getProperty("redis.queue", "queue")
     val rSet = props.getProperty("redis.set", "urls")
+    val rHash = props.getProperty("redis.hash", "robots")
+
     val casConnStr = props.getProperty("cas.conn", "localhost:9042")
     val casKs = props.getProperty("cas.ks", "test")
     val casTbl = props.getProperty("cas.tbl", "test")
@@ -44,7 +46,7 @@ object Main {
     val coord = system.actorOf(Coordinator(redisHost, rQueue, qBatchSize, coordPeriodic))
     val ldRouter = system.actorOf(RoundRobinPool(ldSize).props(Loader(redisHost, rQueue, rSet, se)))
     val prRouter = system.actorOf(RoundRobinPool(prSize).props(DataParser(ldRouter)))
-    system.actorOf(RoundRobinPool(crSize).props(Crawler(coord, prRouter, redisHost, rSet)))
+    system.actorOf(RoundRobinPool(crSize).props(Crawler(coord, prRouter, redisHost, rSet, rHash)))
   }
 }
 

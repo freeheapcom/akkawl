@@ -1,9 +1,11 @@
 package com.freeheap.akkawl.downloader
 
-import org.apache.http.HttpStatus
-import org.apache.http.client.methods.HttpGet
+import com.freeheap.akkawl.util.Logging
+import org.apache.http.{HttpResponse, HttpStatus}
+import org.apache.http.client.HttpClient
+import org.apache.http.client.methods.{CloseableHttpResponse, HttpGet}
 import org.apache.http.client.protocol.HttpClientContext
-import org.apache.http.impl.client.HttpClients
+import org.apache.http.impl.client.{CloseableHttpClient, HttpClients}
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
 import org.apache.http.util.EntityUtils
 
@@ -11,23 +13,30 @@ import org.apache.http.util.EntityUtils
 /**
   * Created by william on 7/21/16.
   */
-object Downloader {
+object Downloader extends Logging {
 
-  val cm = new PoolingHttpClientConnectionManager()
-  val client = HttpClients.custom()
-    .setConnectionManager(cm)
-    .build()
-  cm.setMaxTotal(100)
-
-  def download(url: String): Option[String] = {
-    download(url, HttpClientContext.create())
+  def newClient(): CloseableHttpClient = {
+    val cm = new PoolingHttpClientConnectionManager()
+    cm.setMaxTotal(100)
+    HttpClients.custom()
+      .setConnectionManager(cm)
+      .build()
   }
 
-  def download(url: String, ctx: HttpClientContext): Option[String] = {
-    val get = new HttpGet(url)
-    //    val ctx = HttpClientContext.create()
-    val response = client.execute(get, ctx)
+
+  def download(client: CloseableHttpClient, url: String): Option[String] = {
+    download(client, HttpClientContext.create())(url)
+  }
+
+  def normalizeUrl(url: String) = url.trim
+
+  def download(client: CloseableHttpClient, ctx: HttpClientContext)(iUrl: String): Option[String] = {
+    var response: CloseableHttpResponse = null
+    val url = normalizeUrl(iUrl)
     try {
+      logger.info(s"$iUrl -> $url")
+      val get = new HttpGet(url)
+      response = client.execute(get, ctx)
       val code = response.getStatusLine.getStatusCode
       if (code >= HttpStatus.SC_OK && code < HttpStatus.SC_MULTIPLE_CHOICES) {
         val entity = response.getEntity
@@ -35,13 +44,24 @@ object Downloader {
           val bytes = EntityUtils.toByteArray(entity)
           return Option(new String(bytes))
         }
+      } else if (code >= HttpStatus.SC_MOVED_PERMANENTLY && code < HttpStatus.SC_BAD_REQUEST) {
+        var newUrl: String = null
+        try {
+          newUrl = response.getFirstHeader("Location").getValue
+        } catch {
+          case t: Throwable =>
+            newUrl = null
+        }
+        if (newUrl != null)
+          return download(client, ctx)(newUrl)
       }
     } catch {
-      case e: Exception =>
+      case e: Throwable =>
+        error(s"Cannot download from $url ($iUrl)", e)
     } finally {
-      response.close()
+      if (response != null)
+        response.close()
     }
-
     None
   }
 
@@ -54,49 +74,14 @@ object Downloader {
     * @return
     */
   def downloadRobots(domainUrl: String): Option[String] = {
-    downloadRobots(s"$domainUrl/$RB", HttpClientContext.create())
+    downloadRobots(HttpClientContext.create())(s"$domainUrl")
   }
 
-  def downloadRobots(domainUrl: String, ctx: HttpClientContext): Option[String] = {
-    download(s"$domainUrl/$RB", ctx)
+  def downloadRobots(ctx: HttpClientContext)(domainUrl: String): Option[String] = {
+    download(newClient(), ctx)(s"$domainUrl/$RB")
   }
 
-  //
-  //  def main(args: Array[String]) = {
-  //    var start = System.currentTimeMillis()
-  //    downloadRobots("https://tinhte.vn")
-  //    var end = System.currentTimeMillis()
-  //    println(s"${end - start}")
-  //    start = System.currentTimeMillis()
-  //    downloadRobots("http://vnexpress.net")
-  //    end = System.currentTimeMillis()
-  //    println(s"${end - start}")
-  //    start = System.currentTimeMillis()
-  //    downloadRobots("http://dantri.com.vn")
-  //    end = System.currentTimeMillis()
-  //    println(s"${end - start}")
-  //    start = System.currentTimeMillis()
-  //    downloadRobots("https://github.com")
-  //    end = System.currentTimeMillis()
-  //    println(s"${end - start}")
-  //    start = System.currentTimeMillis()
-  //    downloadRobots("https://github.com")
-  //    end = System.currentTimeMillis()
-  //    println(s"${end - start}")
-  //    start = System.currentTimeMillis()
-  //    downloadRobots("https://github.com")
-  //    end = System.currentTimeMillis()
-  //    println(s"${end - start}")
-  //    start = System.currentTimeMillis()
-  //    downloadRobots("https://github.com")
-  //    end = System.currentTimeMillis()
-  //    println(s"${end - start}")
-  //    start = System.currentTimeMillis()
-  //    downloadRobots("https://www.quora.com")
-  //    end = System.currentTimeMillis()
-  //    println(s"${end - start}")
-  //
-  //
-  //  }
-
+  def downloadRobots(client: CloseableHttpClient, ctx: HttpClientContext)(domainUrl: String): Option[String] = {
+    download(client, ctx)(s"$domainUrl/$RB")
+  }
 }

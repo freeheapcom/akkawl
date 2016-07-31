@@ -3,6 +3,8 @@ package com.freeheap.akkawl.robots
 import com.freeheap.akkawl.downloader.Downloader
 import com.freeheap.drawler.dao.RobotsHash
 import com.freeheap.drawler.drivers.RedisConnection
+import com.freeheap.akkawl.util.Helper
+import org.apache.http.client.protocol.HttpClientContext
 
 import scala.collection.mutable
 
@@ -14,6 +16,8 @@ class Checker(rs: RobotsHash, rf: (RedisConnection, String, String) => Option[St
   val cache = new mutable.HashMap[String, RuleSet]
   val rsrf = rs.getData(rf) _
   val rsrfa = rs.addSet(rfa) _
+  val hc = Downloader.newClient()
+  val ctx = HttpClientContext.create()
 
   /**
     * Download robots or get from cache
@@ -47,10 +51,12 @@ class Checker(rs: RobotsHash, rf: (RedisConnection, String, String) => Option[St
     * @return
     */
   override def canCrawl(url: String): Boolean = {
-    val u = WebURL(url)
-    canCrawl(u.domain, u.path)
+    val dou = Helper.getDomainProtocol(url)
+    dou match {
+      case Some(du) => canCrawl(du._1, du._2)
+      case None => false
+    }
   }
-
 
   /**
     * Check if we can crawl the specific url without parsing domain from url
@@ -70,7 +76,7 @@ class Checker(rs: RobotsHash, rf: (RedisConnection, String, String) => Option[St
 
   private[this] def getFromDbOrDownload(domain: String): RuleSet = {
     learnRobots(rsrf(domain).getOrElse({
-      val content = Downloader.downloadRobots(domain).getOrElse("")
+      val content = Downloader.downloadRobots(hc, ctx)(domain).getOrElse("")
       rsrfa(domain, content)
       content
     }))

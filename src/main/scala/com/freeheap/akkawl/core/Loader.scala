@@ -2,6 +2,7 @@ package com.freeheap.akkawl.core
 
 import akka.actor.{Actor, ActorLogging, Props}
 import com.freeheap.akkawl.message.StorageData
+import com.freeheap.akkawl.util.Logging
 import com.freeheap.drawler.common.CrawledDataFullInfo
 import com.freeheap.drawler.dao.{CrawlerDataStorage, LinkQueue, LinkSet}
 
@@ -9,12 +10,13 @@ import com.freeheap.drawler.dao.{CrawlerDataStorage, LinkQueue, LinkSet}
   * Created by william on 7/6/16.
   * For loading data to storage and queue
   */
-object Loader {
+object Loader extends Logging {
   def apply(rConn: String, rQueue: String, rSet: String, se: CrawlerDataStorage) =
     Props(classOf[Loader], rConn, rQueue, rSet, se)
 }
 
-class Loader(rConn: String, rQueue: String, rSet: String, se: CrawlerDataStorage) extends Actor with ActorLogging {
+class Loader(rConn: String, rQueue: String, rSet: String, se: CrawlerDataStorage)
+  extends Actor with ActorLogging {
   val lq = LinkQueue(rConn, rQueue)
   val ls = LinkSet(rConn, rSet)
 
@@ -38,7 +40,7 @@ class Loader(rConn: String, rQueue: String, rSet: String, se: CrawlerDataStorage
   private[this] def addNewLink(sd: StorageData) = {
     sd.outlink.foreach(i => {
       if (!lse(i)) {
-        log.debug(s"New link found: ${i}")
+        log.debug(s"New link found: $i")
         lqp(i)
       }
     })

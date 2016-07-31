@@ -8,7 +8,7 @@ import com.freeheap.drawler.drivers.RedisConnection
   */
 object RobotsFactory {
 
-  def newRobotsChecker(rs: RobotsHash, rf: (RedisConnection, String, String) => Option[String],
-                       rfa: (RedisConnection, String, String, String) => Unit) = new Checker(rs, rf, rfa)
+  def newRobotsChecker(rh: RobotsHash, rf: (RedisConnection, String, String) => Option[String],
+                       rfa: (RedisConnection, String, String, String) => Unit) = new Checker(rh, rf, rfa)
 
 }
