@@ -1,4 +1,4 @@
-package robots
+package com.freeheap.akkawl.robots
 
 import java.util.StringTokenizer
 import java.util.regex.{Matcher, Pattern}

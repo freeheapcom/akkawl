@@ -1,5 +1,6 @@
-package robots
+package com.freeheap.akkawl.robots
 
+import com.freeheap.akkawl.downloader.Downloader
 import com.freeheap.drawler.dao.RobotsHash
 import com.freeheap.drawler.drivers.RedisConnection
 

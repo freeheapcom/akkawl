@@ -1,4 +1,4 @@
-package robots
+package com.freeheap.akkawl.robots
 
 import java.util.TreeSet
 
@@ -28,7 +28,7 @@ class RuleSet extends TreeSet[String] with Serializable {
 object RuleSet {
   def apply() = new RuleSet
 
-  final val DEF_UA = "freeheap-mark-III"
+  final val DEF_UA = "Freeheap-Mark-V"
 
   def apply(data: String): RuleSet = {
     apply(data, DEF_UA)

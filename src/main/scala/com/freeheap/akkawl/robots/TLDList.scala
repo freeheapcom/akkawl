@@ -1,4 +1,4 @@
-package robots
+package com.freeheap.akkawl.robots
 
 import java.io.{FileInputStream, _}
 import java.net.{MalformedURLException, URL}
@@ -6,7 +6,7 @@ import java.net.{MalformedURLException, URL}
 import org.slf4j.{Logger, LoggerFactory}
 
 /**
-  * Created by william on 7/21/16. Converted from TLDList ò crawler4j
+  * Created by william on 7/21/16. Converted from TLDList of crawler4j
   * This class is a singleton which obtains a list of TLDs (from online or a local file) in order to compare against
   * those TLDs
   */
