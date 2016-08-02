@@ -7,11 +7,10 @@ import com.freeheap.akkawl.downloader.Downloader
 import com.freeheap.akkawl.message._
 import com.freeheap.akkawl.robots.RobotsFactory
 import com.freeheap.akkawl.util.Helper
-import com.freeheap.drawler.dao.{LinkSet, RobotsHash}
-import edu.uci.ics.crawler4j.crawler.{CrawlConfig, Page}
+import com.freeheap.drawler.dao.{RedisSet, RobotsHash}
+import edu.uci.ics.crawler4j.crawler.CrawlConfig
 import edu.uci.ics.crawler4j.fetcher.PageFetcher
 import edu.uci.ics.crawler4j.parser.Parser
-import org.apache.commons.validator.routines.UrlValidator
 import org.apache.http.client.protocol.HttpClientContext
 
 import scala.concurrent.duration.FiniteDuration
@@ -28,10 +27,10 @@ class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String, r
   extends Actor with ActorLogging {
   val downloader = Downloader.download(Downloader.newClient(), HttpClientContext.create()) _
   // For thread-safety
-  val ls = LinkSet(rConn, rSet)
-  val rh = RobotsHash(rConn, rHash)
+  val redisSet = RedisSet(rConn, rSet)
+  val robotsHash = RobotsHash(rConn, rHash)
 
-  val checker = RobotsFactory.newRobotsChecker(rh, RobotsHash.getDataFromSingle, RobotsHash.addDataToSingle)
+  val checker = RobotsFactory.newRobotsChecker(robotsHash, RobotsHash.getDataFromSingle, RobotsHash.addDataToSingle)
 
   val FILTERS: Pattern = Pattern.compile(".*(\\.(css|js|bmp|gif|jpe?g"
     + "|png|tiff?|mid|mp2|mp3|mp4" + "|wav|avi|mov|mpeg|ram|m4v|pdf"
@@ -42,8 +41,8 @@ class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String, r
   config.setPolitenessDelay(1000)
   val parser = new Parser(config)
   val pageFetcher: PageFetcher = new PageFetcher(config)
-  val lse = ls.exists(LinkSet.chckExistsFromSingle) _
-  val lsa = ls.addSet(LinkSet.addDataToSingle) _
+  val funcRedisCheckExistence = redisSet.exists(RedisSet.existsFromSingle) _
+  val funcRedisAdd = redisSet.addSet(RedisSet.addDataToSingle) _
 
   import context.dispatcher
 
@@ -65,7 +64,7 @@ class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String, r
 
   private def shouldVisit(domain: String, url: String): Boolean = {
     val normUrl: String = url.toLowerCase
-    isValidDomain(domain) && !FILTERS.matcher(normUrl).matches && !lse(normUrl) && doesRobotAllow(domain, url)
+    isValidDomain(domain) && !FILTERS.matcher(normUrl).matches && !funcRedisCheckExistence(normUrl) && doesRobotAllow(domain, url)
   }
 
   private def isValidDomain(domain: String): Boolean = {
@@ -79,7 +78,7 @@ class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String, r
   private[this] def getUrl(check: (String, String) => Boolean)(domain: String, url: String) = {
     log.debug("Crawling: ", url)
     if (check(domain, url)) {
-      lsa(url)
+      funcRedisAdd(url)
       val page = downloadPage(url)
       page match {
         case Some(p) =>

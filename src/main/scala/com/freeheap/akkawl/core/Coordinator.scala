@@ -1,13 +1,12 @@
 package com.freeheap.akkawl.core
 
+import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.atomic.AtomicLong
-import java.util.concurrent.{LinkedBlockingQueue, TimeUnit}
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import akka.actor.Actor.Receive
 import com.freeheap.akkawl.message._
 import com.freeheap.akkawl.util.Helper
-import com.freeheap.drawler.dao.LinkQueue
+import com.freeheap.drawler.dao.RedisQueue
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -21,10 +20,10 @@ object Coordinator {
 }
 
 class Coordinator(rConn: String, rQueue: String, batchSize: Int = 100, periodic: Int = 500) extends Actor with ActorLogging {
-  val lq = LinkQueue(rConn, rQueue)
+  val redisQueue = RedisQueue(rConn, rQueue)
   final val MAX_QUEUE_SIZE = 10000
 
-  val q = new LinkedBlockingQueue[String]()
+  val linkedBlockingQueue = new LinkedBlockingQueue[String]()
 
   // TODO add some counters
   val deliverCounter = new AtomicLong(0)
@@ -50,7 +49,7 @@ class Coordinator(rConn: String, rQueue: String, batchSize: Int = 100, periodic:
   override def receive: Receive = {
     case LogPeriodically =>
       val cur = deliverCounter.get()
-      log.info(s"Current queue size: ${q.size()}, deliver rate: ${(cur - oldDeliverCounter.get()) / periodic * 100}")
+      log.info(s"Current queue size: ${linkedBlockingQueue.size()}, deliver rate: ${(cur - oldDeliverCounter.get()) / periodic * 100}")
       oldDeliverCounter.set(cur)
     case PeriodicM =>
       loadDataFromRedis()
@@ -79,35 +78,37 @@ class Coordinator(rConn: String, rQueue: String, batchSize: Int = 100, periodic:
 
   private final val MAX_ALLOWED_REQUEST = 20
 
-  private[this] def deliverMsg(s: ActorRef): Unit = {
+  private[this] def deliverMsg(sender: ActorRef): Unit = {
     popQueue match {
       case Some(url) =>
         val duo = Helper.getDomainProtocol(url)
         duo match {
           case Some(du) =>
             if (rates.getOrElse(du._1, 0) <= MAX_ALLOWED_REQUEST) {
+              println ("here1")
               deliverCounter.incrementAndGet()
-              s ! CrawlingUrl(du._2, du._1, 1)
+              sender ! CrawlingUrl(du._2, du._1, 1)
               incrRate(du._1)
             } else {
+              println("here2")
               pushQueue(url)
-              deliverMsg(s)
+              deliverMsg(sender)
             }
-          case None =>
+          case None => self ! ForceGetData
         }
-      case None => 
+      case None => self ! ForceGetData
     }
   }
 
-  private[this] def popQueue = Option(q.poll())
+  private[this] def popQueue = Option(linkedBlockingQueue.poll())
 
-  private[this] def pushQueue(item: String) = q.offer(item)
+  private[this] def pushQueue(item: String) = linkedBlockingQueue.offer(item)
 
   private[this] def loadDataFromRedis() = {
-    1.to(batchSize).filter(_ => q.size() < MAX_QUEUE_SIZE).foreach(_ => {
-      val i = lq.popQueue(LinkQueue.getDataFromSingle)
+    1.to(batchSize).filter(_ => linkedBlockingQueue.size() < MAX_QUEUE_SIZE).foreach(_ => {
+      val i = redisQueue.popQueue(RedisQueue.getDataFromSingle)
       i match {
-        case Some(url) => q.add(url)
+        case Some(url) => linkedBlockingQueue.add(url)
         case None =>
       }
     })

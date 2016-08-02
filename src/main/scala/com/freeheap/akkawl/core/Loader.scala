@@ -4,7 +4,7 @@ import akka.actor.{Actor, ActorLogging, Props}
 import com.freeheap.akkawl.message.StorageData
 import com.freeheap.akkawl.util.Logging
 import com.freeheap.drawler.common.CrawledDataFullInfo
-import com.freeheap.drawler.dao.{CrawlerDataStorage, LinkQueue, LinkSet}
+import com.freeheap.drawler.dao.{CrawlerDataStorage, RedisQueue, RedisSet}
 
 /**
   * Created by william on 7/6/16.
@@ -17,12 +17,10 @@ object Loader extends Logging {
 
 class Loader(rConn: String, rQueue: String, rSet: String, se: CrawlerDataStorage)
   extends Actor with ActorLogging {
-  val lq = LinkQueue(rConn, rQueue)
-  val ls = LinkSet(rConn, rSet)
 
-  val lse = ls.exists(LinkSet.chckExistsFromSingle) _
-  val lsa = ls.addSet(LinkSet.addDataToSingle) _
-  val lqp = lq.pushQueue(LinkQueue.pushDataToSingle) _
+  val lse = RedisSet(rConn, rSet).exists(RedisSet.existsFromSingle) _
+  val lsa = RedisSet(rConn, rSet).addSet(RedisSet.addDataToSingle) _
+  val lqp = RedisQueue(rConn, rQueue).pushQueue(RedisQueue.pushDataToSingle) _
 
   override def receive: Receive = {
     case sd: StorageData =>

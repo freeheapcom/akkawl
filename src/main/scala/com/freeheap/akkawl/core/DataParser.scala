@@ -3,7 +3,6 @@ package com.freeheap.akkawl.core
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.freeheap.akkawl.message.{CrawledPageData, StorageData}
 import com.kohlschutter.boilerpipe.extractors.ArticleExtractor
-import edu.uci.ics.crawler4j.parser.{HtmlParseData, ParseData}
 import org.jsoup.Jsoup
 
 /**
