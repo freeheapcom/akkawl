@@ -27,7 +27,6 @@ class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String, r
   extends Actor with ActorLogging {
   val downloader = Downloader.download(Downloader.newClient(), HttpClientContext.create()) _
   // For thread-safety
-  val redisSet = RedisSet(rConn, rSet)
   val robotsHash = RobotsHash(rConn, rHash)
 
   val checker = RobotsFactory.newRobotsChecker(robotsHash, RobotsHash.getDataFromSingle, RobotsHash.addDataToSingle)
@@ -41,8 +40,8 @@ class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String, r
   config.setPolitenessDelay(1000)
   val parser = new Parser(config)
   val pageFetcher: PageFetcher = new PageFetcher(config)
-  val funcRedisCheckExistence = redisSet.exists(RedisSet.existsFromSingle) _
-  val funcRedisAdd = redisSet.addSet(RedisSet.addDataToSingle) _
+  val funcCheckProcessed = RedisSet(rConn, rSet).exists(RedisSet.existsFromSingle) _
+  val funcAddToProcessedSet = RedisSet(rConn, rSet).addSet(RedisSet.addDataToSingle) _
 
   import context.dispatcher
 
@@ -64,7 +63,7 @@ class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String, r
 
   private def shouldVisit(domain: String, url: String): Boolean = {
     val normUrl: String = url.toLowerCase
-    isValidDomain(domain) && !FILTERS.matcher(normUrl).matches && !funcRedisCheckExistence(normUrl) && doesRobotAllow(domain, url)
+    isValidDomain(domain) && !FILTERS.matcher(normUrl).matches && !funcCheckProcessed(normUrl) && doesRobotAllow(domain, url)
   }
 
   private def isValidDomain(domain: String): Boolean = {
@@ -78,7 +77,7 @@ class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String, r
   private[this] def getUrl(check: (String, String) => Boolean)(domain: String, url: String) = {
     log.debug("Crawling: ", url)
     if (check(domain, url)) {
-      funcRedisAdd(url)
+      funcAddToProcessedSet(url)
       val page = downloadPage(url)
       page match {
         case Some(p) =>

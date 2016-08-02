@@ -18,9 +18,9 @@ object Loader extends Logging {
 class Loader(rConn: String, rQueue: String, rSet: String, se: CrawlerDataStorage)
   extends Actor with ActorLogging {
 
-  val lse = RedisSet(rConn, rSet).exists(RedisSet.existsFromSingle) _
-  val lsa = RedisSet(rConn, rSet).addSet(RedisSet.addDataToSingle) _
-  val lqp = RedisQueue(rConn, rQueue).pushQueue(RedisQueue.pushDataToSingle) _
+  val funcCheckProcessed = RedisSet(rConn, rSet).exists(RedisSet.existsFromSingle) _
+  val funcAddToProcessedSet = RedisSet(rConn, rSet).addSet(RedisSet.addDataToSingle) _
+  val funcAddToUnprocessedQueue = RedisQueue(rConn, rQueue).pushQueue(RedisQueue.pushDataToSingle) _
 
   override def receive: Receive = {
     case sd: StorageData =>
@@ -30,16 +30,16 @@ class Loader(rConn: String, rQueue: String, rSet: String, se: CrawlerDataStorage
 
   private[this] def persistData(sd: StorageData): Unit = {
     log.debug(s"Persisting data ${sd.url}")
-    lsa(sd.url)
+    funcAddToProcessedSet(sd.url)
     val fi = CrawledDataFullInfo(sd.domain, sd.url, sd.content, sd.ts, sd.outlink)
     se.saveData(fi)
   }
 
   private[this] def addNewLink(sd: StorageData) = {
     sd.outlink.foreach(i => {
-      if (!lse(i)) {
+      if (!funcCheckProcessed(i)) {
         log.debug(s"New link found: $i")
-        lqp(i)
+        funcAddToUnprocessedQueue(i)
       }
     })
   }
