@@ -25,8 +25,8 @@ object Main {
 
   private[this] def startup(props: Properties): Unit = {
     val redisHost = props.getProperty("redis.hosts", "localhost:6379")
-    val rQueue = props.getProperty("redis.queue", "queue")
-    val rSet = props.getProperty("redis.set", "urls")
+    val rQueue = props.getProperty("redis.unprocessed_queue", "queue")
+    val rSet = props.getProperty("redis.processed_set", "urls")
     val rHash = props.getProperty("redis.hash", "robots")
 
     val casConnStr = props.getProperty("cas.conn", "localhost:9042")
