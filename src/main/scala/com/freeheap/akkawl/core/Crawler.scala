@@ -55,6 +55,7 @@ class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String, r
   override def receive: Receive = {
     case cu: CrawlingUrl =>
       checkBeforeGet(cu.domain, cu.url)
+      println("Finish: url: " + cu.url + ", domain : " + cu.domain)
       sender ! Finish(cu.url, cu.domain)
     case PeriodicM =>
       // can do some other works

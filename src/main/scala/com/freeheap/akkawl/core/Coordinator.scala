@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.freeheap.akkawl.message._
-import com.freeheap.akkawl.util.Helper
+import com.freeheap.akkawl.util.{Helper, RateLimiter}
 import com.freeheap.drawler.dao.RedisQueue
 
 import scala.concurrent.duration.FiniteDuration
@@ -20,9 +20,10 @@ object Coordinator {
 }
 
 class Coordinator(rConn: String, rQueue: String, batchSize: Int = 100, periodic: Int = 500) extends Actor with ActorLogging {
-  val redisQueue = RedisQueue(rConn, rQueue)
+
   final val MAX_QUEUE_SIZE = 10000
 
+  val redisQueue = RedisQueue(rConn, rQueue)
   val linkedBlockingQueue = new LinkedBlockingQueue[String]()
 
   // TODO add some counters
@@ -58,25 +59,10 @@ class Coordinator(rConn: String, rQueue: String, batchSize: Int = 100, periodic:
     case NeedMoreMsg =>
       deliverMsg(sender())
     case Finish(url, domain) =>
-      decrRate(domain)
+      RateLimiter.returnPermit(domain)
+      RateLimiter.printCounter(domain)
       deliverMsg(sender())
   }
-
-  private val rates = new scala.collection.mutable.HashMap[String, Int]
-
-  private[this] def incrRate(domain: String) = {
-    this.synchronized {
-      rates(domain) = rates.getOrElseUpdate(domain, 0) + 1
-    }
-  }
-
-  private[this] def decrRate(domain: String) = {
-    this.synchronized {
-      rates(domain) = rates.getOrElseUpdate(domain, 1) - 1
-    }
-  }
-
-  private final val MAX_ALLOWED_REQUEST = 20
 
   private[this] def deliverMsg(sender: ActorRef): Unit = {
     popQueue match {
@@ -84,13 +70,13 @@ class Coordinator(rConn: String, rQueue: String, batchSize: Int = 100, periodic:
         val duo = Helper.getDomainProtocol(url)
         duo match {
           case Some(du) =>
-            if (rates.getOrElse(du._1, 0) <= MAX_ALLOWED_REQUEST) {
-              println ("here1")
+            if (RateLimiter.tryAcquire(du._1)) {
+              println ("here1 : " + du._1)
               deliverCounter.incrementAndGet()
               sender ! CrawlingUrl(du._2, du._1, 1)
-              incrRate(du._1)
             } else {
-              println("here2")
+              println("here2: " + du._1)
+              RateLimiter.printCounter(du._1)
               pushQueue(url)
               deliverMsg(sender)
             }

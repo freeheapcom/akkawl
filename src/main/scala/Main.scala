@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import akka.routing.RoundRobinPool
 import com.freeheap.akkawl.core.{Coordinator, Crawler, DataParser, Loader}
 import com.freeheap.akkawl.util.ConfigLoader
-import com.freeheap.drawler.dao.{CrawlerDataStorage, RedisQueue, RedisSet}
+import com.freeheap.drawler.dao.CrawlerDataStorage
 
 /**
   * @author william
