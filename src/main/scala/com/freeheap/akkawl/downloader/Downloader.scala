@@ -6,7 +6,7 @@ import com.freeheap.akkawl.robots.WebURL
 import com.freeheap.akkawl.util.Logging
 import org.apache.http.{HttpResponse, HttpStatus}
 import org.apache.http.client.HttpClient
-import org.apache.http.client.methods.{CloseableHttpResponse, HttpGet}
+import org.apache.http.client.methods.{CloseableHttpResponse, HttpGet, HttpHead}
 import org.apache.http.client.protocol.HttpClientContext
 import org.apache.http.impl.client.{CloseableHttpClient, HttpClients}
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager
@@ -43,14 +43,24 @@ object Downloader extends Logging {
     val url = normalizeUrl(iUrl)
     try {
       logger.info(s"$iUrl -> $url")
+
       val get = new HttpGet(url)
       response = client.execute(get, ctx)
       val code = response.getStatusLine.getStatusCode
       if (code >= HttpStatus.SC_OK && code < HttpStatus.SC_MULTIPLE_CHOICES) {
         val entity = response.getEntity
         if (entity != null) {
-          val bytes = EntityUtils.toByteArray(entity)
-          return Option(new String(bytes))
+         if (iUrl.contains("txt") ||
+             entity.getContentType.getValue.contains("text/html")) { //only process pages with mime = text/html
+           //println("Processing this page: " + url)
+           val bytes = EntityUtils.toByteArray(entity)
+           return Option(new String(bytes))
+         } else {
+           //println("Content-type: " + entity.getContentType.getValue)
+           return null
+         }
+        } else {
+          return null
         }
       } else if (code >= HttpStatus.SC_MOVED_PERMANENTLY && code < HttpStatus.SC_BAD_REQUEST) {
         var newUrl: String = null

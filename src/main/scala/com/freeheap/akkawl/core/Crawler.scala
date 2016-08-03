@@ -8,9 +8,6 @@ import com.freeheap.akkawl.message._
 import com.freeheap.akkawl.robots.RobotsFactory
 import com.freeheap.akkawl.util.Helper
 import com.freeheap.drawler.dao.{RedisSet, RobotsHash}
-import edu.uci.ics.crawler4j.crawler.CrawlConfig
-import edu.uci.ics.crawler4j.fetcher.PageFetcher
-import edu.uci.ics.crawler4j.parser.Parser
 import org.apache.http.client.protocol.HttpClientContext
 
 import scala.concurrent.duration.FiniteDuration
@@ -35,11 +32,6 @@ class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String, r
     + "|png|tiff?|mid|mp2|mp3|mp4" + "|wav|avi|mov|mpeg|ram|m4v|pdf"
     + "|rm|smil|wmv|swf|wma|zip|rar|gz))$")
 
-  val config: CrawlConfig = new CrawlConfig
-  config.setIncludeBinaryContentInCrawling(false)
-  config.setPolitenessDelay(1000)
-  val parser = new Parser(config)
-  val pageFetcher: PageFetcher = new PageFetcher(config)
   val funcCheckProcessed = RedisSet(rConn, rSet).exists(RedisSet.existsFromSingle) _
   val funcAddToProcessedSet = RedisSet(rConn, rSet).addSet(RedisSet.addDataToSingle) _
 
@@ -54,8 +46,8 @@ class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String, r
 
   override def receive: Receive = {
     case cu: CrawlingUrl =>
+      println("Crawler processing: url: " + cu.url + ", domain : " + cu.domain)
       checkBeforeGet(cu.domain, cu.url)
-      println("Finish: url: " + cu.url + ", domain : " + cu.domain)
       sender ! Finish(cu.url, cu.domain)
     case PeriodicM =>
       // can do some other works

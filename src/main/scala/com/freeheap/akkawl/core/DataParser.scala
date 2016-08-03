@@ -1,8 +1,10 @@
 package com.freeheap.akkawl.core
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import com.freeheap.akkawl.downloader.Downloader
 import com.freeheap.akkawl.message.{CrawledPageData, StorageData}
 import com.kohlschutter.boilerpipe.extractors.ArticleExtractor
+import org.apache.http.client.protocol.HttpClientContext
 import org.jsoup.Jsoup
 
 /**
@@ -13,6 +15,7 @@ object DataParser {
 }
 
 class DataParser(loader: ActorRef) extends Actor with ActorLogging {
+
   override def receive: Receive = {
     case cpd: CrawledPageData =>
       parseData(cpd)
@@ -38,11 +41,14 @@ class DataParser(loader: ActorRef) extends Actor with ActorLogging {
     val doc = Jsoup.parse(content)
     val links = doc.select("a[href]")
     import scala.collection.JavaConversions._
-    links.map(link => {
-      val l = link.attr("href").trim
-      if (l.startsWith("/")) s"$domain/$l"
-      else l
-    }).toSet
+    val filteredLinks = links.map(link => {
+          //println("outlink: " + link)
+          link.attr("href").trim
+       }).filter(link => {
+          link.startsWith("http")
+       }).toSet
+
+    filteredLinks
   }
 
   val extractor = ArticleExtractor.INSTANCE

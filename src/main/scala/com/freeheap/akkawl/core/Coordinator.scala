@@ -60,7 +60,7 @@ class Coordinator(rConn: String, rQueue: String, batchSize: Int = 100, periodic:
       deliverMsg(sender())
     case Finish(url, domain) =>
       RateLimiter.returnPermit(domain)
-      //RateLimiter.printCounter(domain)
+      RateLimiter.printCounter(domain)
       deliverMsg(sender())
   }
 
@@ -71,11 +71,11 @@ class Coordinator(rConn: String, rQueue: String, batchSize: Int = 100, periodic:
         duo match {
           case Some(du) =>
             if (RateLimiter.tryAcquire(du._1)) {
-              //println ("here1 : " + du._1)
+              //println ("Can process : " + du._1)
               deliverCounter.incrementAndGet()
               sender ! CrawlingUrl(du._2, du._1, 1)
             } else {
-              //println("here2: " + du._1)
+              //println("Cannot process due to rate limiter: " + du._1)
               RateLimiter.printCounter(du._1)
               pushQueue(url)
               deliverMsg(sender)
