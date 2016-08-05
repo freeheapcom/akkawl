@@ -9,15 +9,15 @@ case class Message()
 
 case class Url(url: String)
 
-case class CrawlingUrl(url: String, domain: String, simulConn: Int)
+case class CrawlingUrl(protocol: String, domain: String, url: String, simulConn: Int)
 
-case class CrawledData(url: String, domain: String, content: String, ts: Long)
+case class CrawledData(protocol: String, url: String, domain: String, content: String, ts: Long)
 
-case class CrawledPageData(domain: String, url: String, content: String, ts: Long)
+case class CrawledPageData(protocol: String, domain: String, url: String, content: String, ts: Long)
 
-case class StorageData(url: String, domain: String, content: String, ts: Long, outlink: Set[String] = Set())
+case class StorageData(protocol: String, url: String, domain: String, content: String, ts: Long, outLink: Set[String] = Set())
 
-case class Finish(url: String, domain: String)
+case class FinishCrawling(url: String, domain: String)
 
 case class PeriodicM()
 

@@ -23,10 +23,10 @@ class DataParser(loader: ActorRef) extends Actor with ActorLogging {
     val content: String = cpd.content
     if (content != null) {
       val parsedData = extractMainContent(content)
-      val outLinks = extractOutLinks(cpd.domain, content)
+      val outLinks = extractOutLinks(cpd.protocol, cpd.domain, cpd.url, content)
       parsedData match {
         case Some(mainContent) =>
-          loader ! StorageData(cpd.url, cpd.domain, mainContent, cpd.ts, outLinks)
+          loader ! StorageData(cpd.protocol, cpd.url, cpd.domain, mainContent, cpd.ts, outLinks)
         case None =>
           log.debug(s"Cannot parse html from data $cpd")
       }
@@ -35,13 +35,14 @@ class DataParser(loader: ActorRef) extends Actor with ActorLogging {
     }
   }
 
-  private[this] def extractOutLinks(domain: String, content: String): Set[String] = {
+  private[this] def extractOutLinks(protocol: String, domain: String, url: String, content: String): Set[String] = {
     val doc = Jsoup.parse(content)
     val links = doc.select("a[href]")
     import scala.collection.JavaConversions._
     links.map(link => {
       val l = link.attr("href").trim
-      if (l.startsWith("/")) s"$domain/$l"
+
+      if (l.startsWith("http")) s"$domain/$l"
       else l
     }).toSet
   }

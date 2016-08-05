@@ -37,11 +37,6 @@ class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String, r
     + "|png|tiff?|mid|mp2|mp3|mp4" + "|wav|avi|mov|mpeg|ram|m4v|pdf"
     + "|rm|smil|wmv|swf|wma|zip|rar|gz))$")
 
-  val config: CrawlConfig = new CrawlConfig
-  config.setIncludeBinaryContentInCrawling(false)
-  config.setPolitenessDelay(1000)
-  val parser = new Parser(config)
-  val pageFetcher: PageFetcher = new PageFetcher(config)
   val lse = ls.exists(LinkSet.chckExistsFromSingle) _
   val lsa = ls.addSet(LinkSet.addDataToSingle) _
 
@@ -56,8 +51,8 @@ class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String, r
 
   override def receive: Receive = {
     case cu: CrawlingUrl =>
-      checkBeforeGet(cu.domain, cu.url)
-      sender ! Finish(cu.url, cu.domain)
+      checkBeforeGet(cu.protocol, cu.domain, cu.url)
+      sender ! FinishCrawling(cu.url, cu.domain)
     case PeriodicM =>
       // can do some other works
       coord ! NeedMoreMsg
@@ -76,16 +71,16 @@ class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String, r
     checker.canCrawl(domain, url)
   }
 
-  private[this] def getUrl(check: (String, String) => Boolean)(domain: String, url: String) = {
+  private[this] def getUrl(check: (String, String) => Boolean)(protocol: String, domain: String, url: String) = {
     log.debug("Crawling: ", url)
     if (check(domain, url)) {
       lsa(url)
       val page = downloadPage(url)
       page match {
         case Some(p) =>
-          parserR ! CrawledPageData(domain, url, p, System.currentTimeMillis())
+          parserR ! CrawledPageData(protocol, domain, url, p, System.currentTimeMillis())
         case None =>
-          log.debug(s"Crawling $url not found")
+          log.debug(s"Crawler: $url not found")
       }
     }
   }

@@ -1,9 +1,9 @@
 package com.freeheap.akkawl.robots
 
 import com.freeheap.akkawl.downloader.Downloader
+import com.freeheap.akkawl.util.Helper
 import com.freeheap.drawler.dao.RobotsHash
 import com.freeheap.drawler.drivers.RedisConnection
-import com.freeheap.akkawl.util.Helper
 import org.apache.http.client.protocol.HttpClientContext
 
 import scala.collection.mutable

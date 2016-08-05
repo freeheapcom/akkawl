@@ -17,15 +17,20 @@ libraryDependencies ++= Seq(
   "org.apache.httpcomponents" % "httpcore" % "4.4.5",
   "commons-validator" % "commons-validator" % "1.4.0",
   "com.kohlschutter.boilerpipe" % "boilerpipe-common" % "2.0-SNAPSHOT",
-  "org.jsoup" % "jsoup" % "1.9.2"
+  "org.jsoup" % "jsoup" % "1.9.2",
+  "org.scalactic" %% "scalactic" % "3.0.0",
+  "org.scalatest" %% "scalatest" % "3.0.0" % "test"
 )
 
 resolvers ++= Seq(
   "Akka Snapshot Repository" at "http://repo.akka.io/snapshots/",
+  "Artima Maven Repository" at "http://repo.artima.com/releases",
   Resolver.sonatypeRepo("releases"),
   Resolver.mavenLocal,
   Resolver.defaultLocal
 )
+
+logBuffered in Test := false
 
 mainClass in assembly := Some("Main")
 

@@ -33,12 +33,12 @@ class Loader(rConn: String, rQueue: String, rSet: String, se: CrawlerDataStorage
   private[this] def persistData(sd: StorageData): Unit = {
     log.debug(s"Persisting data ${sd.url}")
     lsa(sd.url)
-    val fi = CrawledDataFullInfo(sd.domain, sd.url, sd.content, sd.ts, sd.outlink)
+    val fi = CrawledDataFullInfo(sd.domain, sd.url, sd.content, sd.ts, sd.outLink)
     se.saveData(fi)
   }
 
   private[this] def addNewLink(sd: StorageData) = {
-    sd.outlink.foreach(i => {
+    sd.outLink.foreach(i => {
       if (!lse(i)) {
         log.debug(s"New link found: $i")
         lqp(i)

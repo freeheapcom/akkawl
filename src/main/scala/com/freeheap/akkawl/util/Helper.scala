@@ -25,10 +25,20 @@ object Helper {
     } else null)
   }
 
-  def getDomainProtocol(url: String): Option[(String, String)] = {
+  /**
+    *
+    * @param url
+    * @return Tuple of (Protocol, Domain, Url)
+    */
+  def getDomainProtocol(url: String): Option[(String, String, String)] = {
     Option(if (url != null) {
-      val u = WebURL(url)
-      (s"http://${u.domain}", url)
+      val u = new URL(url)
+      u.getProtocol
+      if (u.getPort == 80) {
+        (u.getProtocol, s"${u.getProtocol}://${u.getHost}", url)
+      } else {
+        (u.getProtocol, s"${u.getProtocol}://${u.getHost}:${u.getPort}", url)
+      }
     } else null)
   }
 
@@ -38,5 +48,7 @@ object Helper {
   def isValidDomain(domain: String): Boolean = {
     urlValidator.isValid(domain)
   }
+
+
 
 }

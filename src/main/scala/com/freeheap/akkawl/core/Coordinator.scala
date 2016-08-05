@@ -20,7 +20,8 @@ object Coordinator {
     Props(classOf[Coordinator], rConn, rQueue, batchSize, periodic)
 }
 
-class Coordinator(rConn: String, rQueue: String, batchSize: Int = 100, periodic: Int = 500) extends Actor with ActorLogging {
+class Coordinator(rConn: String, rQueue: String, batchSize: Int = 100, periodic: Int = 500)
+  extends Actor with ActorLogging {
   val lq = LinkQueue(rConn, rQueue)
   final val MAX_QUEUE_SIZE = 10000
 
@@ -44,8 +45,9 @@ class Coordinator(rConn: String, rQueue: String, batchSize: Int = 100, periodic:
 
   override def preStart() = {}
 
-  override def postRestart(reason: Throwable) = {}
-
+  override def postRestart(reason: Throwable) = {
+    log.info(s"Restarted from ${reason.getMessage}", reason)
+  }
 
   override def receive: Receive = {
     case LogPeriodically =>
@@ -58,7 +60,7 @@ class Coordinator(rConn: String, rQueue: String, batchSize: Int = 100, periodic:
       loadDataFromRedis()
     case NeedMoreMsg =>
       deliverMsg(sender())
-    case Finish(url, domain) =>
+    case FinishCrawling(url, domain) =>
       decrRate(domain)
       deliverMsg(sender())
   }
@@ -85,17 +87,17 @@ class Coordinator(rConn: String, rQueue: String, batchSize: Int = 100, periodic:
         val duo = Helper.getDomainProtocol(url)
         duo match {
           case Some(du) =>
-            if (rates.getOrElse(du._1, 0) <= MAX_ALLOWED_REQUEST) {
+            if (rates.getOrElse(du._2, 0) <= MAX_ALLOWED_REQUEST) {
               deliverCounter.incrementAndGet()
-              s ! CrawlingUrl(du._2, du._1, 1)
-              incrRate(du._1)
+              s ! CrawlingUrl(du._1, du._2, du._3, 1)
+              incrRate(du._2)
             } else {
               pushQueue(url)
               deliverMsg(s)
             }
           case None =>
         }
-      case None => 
+      case None =>
     }
   }
 
@@ -104,6 +106,7 @@ class Coordinator(rConn: String, rQueue: String, batchSize: Int = 100, periodic:
   private[this] def pushQueue(item: String) = q.offer(item)
 
   private[this] def loadDataFromRedis() = {
+    log.info("Loading data")
     1.to(batchSize).filter(_ => q.size() < MAX_QUEUE_SIZE).foreach(_ => {
       val i = lq.popQueue(LinkQueue.getDataFromSingle)
       i match {
@@ -111,6 +114,7 @@ class Coordinator(rConn: String, rQueue: String, batchSize: Int = 100, periodic:
         case None =>
       }
     })
+    log.info("Loading data..done")
   }
 
 }
