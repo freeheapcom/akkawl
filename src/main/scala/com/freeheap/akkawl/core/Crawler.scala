@@ -4,6 +4,7 @@ import java.util.regex.Pattern
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.freeheap.akkawl.downloader.Downloader
+import com.freeheap.akkawl.downloader.Downloader._
 import com.freeheap.akkawl.message._
 import com.freeheap.akkawl.robots.RobotsFactory
 import com.freeheap.akkawl.util.Helper
@@ -47,7 +48,12 @@ class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String, r
   override def receive: Receive = {
     case cu: CrawlingUrl =>
       println("Crawler processing: url: " + cu.url + ", domain : " + cu.domain)
-      checkBeforeGet(cu.domain, cu.url)
+      try {
+        checkBeforeGet(cu.domain, cu.url)
+      } catch {
+        case e: Throwable =>
+        error(s"checkBeforeGet in crawler has error for $cu.url", e)
+      }
       sender ! Finish(cu.url, cu.domain)
     case PeriodicM =>
       // can do some other works
@@ -56,7 +62,11 @@ class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String, r
 
   private def shouldVisit(domain: String, url: String): Boolean = {
     val normUrl: String = url.toLowerCase
-    isValidDomain(domain) && !FILTERS.matcher(normUrl).matches && !funcCheckProcessed(normUrl) && doesRobotAllow(domain, url)
+    val validDomain = isValidDomain(domain)
+    val passFilters = !FILTERS.matcher(normUrl).matches
+    val isExisted = funcCheckProcessed(normUrl)
+    val robotAllows = doesRobotAllow(domain, url)
+    validDomain && passFilters && !isExisted && robotAllows
   }
 
   private def isValidDomain(domain: String): Boolean = {
@@ -68,16 +78,21 @@ class Crawler(coord: ActorRef, parserR: ActorRef, rConn: String, rSet: String, r
   }
 
   private[this] def getUrl(check: (String, String) => Boolean)(domain: String, url: String) = {
-    log.debug("Crawling: ", url)
-    if (check(domain, url)) {
-      funcAddToProcessedSet(url)
-      val page = downloadPage(url)
-      page match {
-        case Some(p) =>
-          parserR ! CrawledPageData(domain, url, p, System.currentTimeMillis())
-        case None =>
-          log.debug(s"Crawling $url not found")
+    try {
+      log.debug("Crawling: ", url)
+      if (check(domain, url)) {
+        funcAddToProcessedSet(url)
+        val page = downloadPage(url)
+        page match {
+          case Some(p) =>
+            parserR ! CrawledPageData(domain, url, p, System.currentTimeMillis())
+          case None =>
+            log.debug(s"Crawling $url not found") //TODO: should we ignore this page or put into the processed set
+        }
       }
+    } catch {
+       case e: Throwable =>
+       error(s"Cannot crawl from $url", e)
     }
   }
 

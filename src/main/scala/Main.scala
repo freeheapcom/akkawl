@@ -1,8 +1,9 @@
 import java.util.Properties
 
-import akka.actor.ActorSystem
+import akka.actor.{Actor, ActorSystem, AllDeadLetters, Props}
 import akka.routing.RoundRobinPool
 import com.freeheap.akkawl.core.{Coordinator, Crawler, DataParser, Loader}
+import com.freeheap.akkawl.message.Finish
 import com.freeheap.akkawl.util.ConfigLoader
 import com.freeheap.drawler.dao.CrawlerDataStorage
 
@@ -23,6 +24,12 @@ object Main {
     })
   }
 
+  class Listener extends Actor {
+    def receive = {
+      case Finish(url, domain) => println(s"${self.path.name} is listening to: ${url}")
+    }
+  }
+
   private[this] def startup(props: Properties): Unit = {
     val redisHost = props.getProperty("redis.hosts", "localhost:6379")
     val rQueue = props.getProperty("redis.unprocessed_queue", "queue")
@@ -40,6 +47,7 @@ object Main {
 
     val respectRobot = props.getProperty("crawler.respectRobot", "true").toBoolean
 
+
     val coordPeriodic = props.getProperty("coord.periodic", "500").toInt
 
     val se = CrawlerDataStorage(casConnStr, casKs, casTbl)
@@ -49,6 +57,9 @@ object Main {
     val ldRouter = system.actorOf(RoundRobinPool(ldSize).props(Loader(redisHost, rQueue, rSet, se)))
     val prRouter = system.actorOf(RoundRobinPool(prSize).props(DataParser(ldRouter)))
     system.actorOf(RoundRobinPool(crSize).props(Crawler(coord, prRouter, redisHost, rSet, rHash)))
+
+    //val listener = system.actorOf(Props(classOf[Listener], this))
+    //system.eventStream.subscribe(listener, classOf[AllDeadLetters])
   }
 }
 

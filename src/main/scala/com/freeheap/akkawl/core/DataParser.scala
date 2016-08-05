@@ -1,10 +1,8 @@
 package com.freeheap.akkawl.core
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import com.freeheap.akkawl.downloader.Downloader
 import com.freeheap.akkawl.message.{CrawledPageData, StorageData}
 import com.kohlschutter.boilerpipe.extractors.ArticleExtractor
-import org.apache.http.client.protocol.HttpClientContext
 import org.jsoup.Jsoup
 
 /**

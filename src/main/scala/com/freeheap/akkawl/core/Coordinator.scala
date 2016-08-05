@@ -12,8 +12,8 @@ import scala.concurrent.duration.FiniteDuration
 
 /**
   * Created by william on 7/6/16.
-  */
-
+  *
+**/
 object Coordinator {
   def apply(rConn: String, rQueue: String, batchSize: Int = 100, periodic: Int = 500) =
     Props(classOf[Coordinator], rConn, rQueue, batchSize, periodic)
@@ -60,25 +60,23 @@ class Coordinator(rConn: String, rQueue: String, batchSize: Int = 100, periodic:
       deliverMsg(sender())
     case Finish(url, domain) =>
       RateLimiter.returnPermit(domain)
-      RateLimiter.printCounter(domain)
+      RateLimiter.printCounter(domain, url)
       deliverMsg(sender())
   }
 
-  private[this] def deliverMsg(sender: ActorRef): Unit = {
+  private[this] def deliverMsg(crawler: ActorRef): Unit = {
     popQueue match {
       case Some(url) =>
         val duo = Helper.getDomainProtocol(url)
         duo match {
           case Some(du) =>
             if (RateLimiter.tryAcquire(du._1)) {
-              //println ("Can process : " + du._1)
               deliverCounter.incrementAndGet()
-              sender ! CrawlingUrl(du._2, du._1, 1)
-            } else {
-              //println("Cannot process due to rate limiter: " + du._1)
-              RateLimiter.printCounter(du._1)
+              crawler ! CrawlingUrl(du._2, du._1, 1)
+            } else { //return permit
+              RateLimiter.printCounter(du._1, du._2)
               pushQueue(url)
-              deliverMsg(sender)
+              deliverMsg(crawler)
             }
           case None => self ! ForceGetData
         }

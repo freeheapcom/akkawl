@@ -1,7 +1,5 @@
 package com.freeheap.akkawl.message
 
-import edu.uci.ics.crawler4j.crawler.Page
-
 /**
   * Created by william on 7/15/16.
   */
