@@ -4,7 +4,6 @@ import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.freeheap.akkawl.message.{CrawledPageData, StorageData}
 import com.freeheap.akkawl.util.Helper
 import com.kohlschutter.boilerpipe.extractors.ArticleExtractor
-import edu.uci.ics.crawler4j.parser.{HtmlParseData, ParseData}
 import org.jsoup.Jsoup
 
 /**
@@ -15,6 +14,7 @@ object DataParser {
 }
 
 class DataParser(loader: ActorRef) extends Actor with ActorLogging {
+
   override def receive: Receive = {
     case cpd: CrawledPageData =>
       parseData(cpd)
@@ -54,6 +54,7 @@ class DataParser(loader: ActorRef) extends Actor with ActorLogging {
         } else None
       } else None
     }).toSet
+
   }
 
   val extractor = ArticleExtractor.INSTANCE

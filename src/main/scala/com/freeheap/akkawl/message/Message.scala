@@ -1,7 +1,5 @@
 package com.freeheap.akkawl.message
 
-import edu.uci.ics.crawler4j.crawler.Page
-
 /**
   * Created by william on 7/15/16.
   */
@@ -17,7 +15,7 @@ case class CrawledPageData(protocol: String, domain: String, url: String, conten
 
 case class StorageData(protocol: String, url: String, domain: String, content: String, ts: Long, outLink: Set[String] = Set())
 
-case class FinishCrawling(url: String, domain: String)
+case class FinishCrawling(domain: String, url: String)
 
 case class PeriodicM()
 

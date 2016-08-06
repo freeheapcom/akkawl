@@ -1,11 +1,10 @@
 package com.freeheap.akkawl.downloader
 
 import java.net.URLEncoder
+import java.util.Locale
 
-import com.freeheap.akkawl.robots.WebURL
 import com.freeheap.akkawl.util.Logging
-import org.apache.http.{HttpResponse, HttpStatus}
-import org.apache.http.client.HttpClient
+import org.apache.http.HttpStatus
 import org.apache.http.client.methods.{CloseableHttpResponse, HttpGet}
 import org.apache.http.client.protocol.HttpClientContext
 import org.apache.http.impl.client.{CloseableHttpClient, HttpClients}
@@ -40,19 +39,37 @@ object Downloader extends Logging {
     }
   }
 
+  private def canVisit(response: CloseableHttpResponse): Boolean = {
+    val entity = response.getEntity
+    if (entity == null)
+      return false
+
+    if (response.getLocale == Locale.US || response.getLocale == Locale.UK ||
+        response.getLocale == Locale.ENGLISH) {
+       //only process pages with mime = text/html and text/plain
+       if (entity.getContentType.getValue.contains("text/html") ||
+           entity.getContentType.getValue.contains("text/plain"))
+         return true
+    }
+    false
+  }
+
   def download(client: CloseableHttpClient, ctx: HttpClientContext)(domain: String, iUrl: String): Option[String] = {
     var response: CloseableHttpResponse = null
     val url = normalizeUrl(domain, iUrl)
     try {
       logger.info(s"$iUrl -> $url")
+
       val get = new HttpGet(url)
       response = client.execute(get, ctx)
       val code = response.getStatusLine.getStatusCode
       if (code >= HttpStatus.SC_OK && code < HttpStatus.SC_MULTIPLE_CHOICES) {
         val entity = response.getEntity
-        if (entity != null) {
-          val bytes = EntityUtils.toByteArray(entity)
-          return Option(new String(bytes))
+        if ((entity != null) && (iUrl.contains("txt") || canVisit(response))) {
+           val bytes = EntityUtils.toByteArray(entity)
+           return Option(new String(bytes))
+        } else {
+          return None
         }
       } else if (code >= HttpStatus.SC_MOVED_PERMANENTLY && code < HttpStatus.SC_BAD_REQUEST) {
         var newUrl: String = null
