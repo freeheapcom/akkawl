@@ -4,7 +4,6 @@ package com.freeheap.akkawl.core
 import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 import java.util.concurrent.LinkedBlockingQueue
 
-import com.freeheap.drawler.dao.LinkQueue
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.freeheap.akkawl.message._
 import com.freeheap.akkawl.util.{Helper, RateLimiter}
@@ -23,7 +22,6 @@ object Coordinator {
 
 class Coordinator(rConn: String, rQueue: String, batchSize: Int = 100, periodic: Int = 500)
   extends Actor with ActorLogging {
-  val lq = LinkQueue(rConn, rQueue)
   final val MAX_QUEUE_SIZE = 10000
 
   val redisQueue = RedisQueue(rConn, rQueue)
@@ -100,7 +98,7 @@ class Coordinator(rConn: String, rQueue: String, batchSize: Int = 100, periodic:
     log.debug("Loading data")
     val ai = new AtomicInteger()
     1.to(batchSize).filter(_ => linkedBlockingQueue.size() < MAX_QUEUE_SIZE).foreach(_ => {
-      val i = lq.popQueue(LinkQueue.getDataFromSingle)
+      val i = redisQueue.popQueue(RedisQueue.getDataFromSingle)
       i match {
         case Some(url) =>
           ai.incrementAndGet()
