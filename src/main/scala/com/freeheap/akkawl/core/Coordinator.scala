@@ -75,7 +75,7 @@ class Coordinator(rConn: String, rQueue: String, batchSize: Int = 100, periodic:
         val duo = Helper.getDomainProtocol(url)
         duo match {
           case Some(du) =>
-            if (RateLimiter.tryAcquire(du._1)) {
+            if (RateLimiter.tryAcquire(du._2)) {
               deliverCounter.incrementAndGet()
               crawler ! CrawlingUrl(du._1, du._2, du._3, 1)
             } else {
