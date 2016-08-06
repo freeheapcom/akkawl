@@ -26,21 +26,23 @@ object Downloader extends Logging {
       .build()
   }
 
-
-  def download(client: CloseableHttpClient, url: String): Option[String] = {
-    download(client, HttpClientContext.create())(url)
+  def download(client: CloseableHttpClient, domain: String, url: String): Option[String] = {
+    download(client, HttpClientContext.create())(domain, url)
   }
 
-  def normalizeUrl(url: String) = {
-    val noExtrSpace = url.trim
-    val i = noExtrSpace.lastIndexOf('/')
-    val after = noExtrSpace.substring(i + 1)
-    noExtrSpace.substring(0, i + 1) + URLEncoder.encode(after, "UTF-8")
+  def normalizeUrl(domain: String, url: String) = {
+    val trimmedUrl = url.trim
+    val i = trimmedUrl.indexOf('/', domain.length - 2)
+    if (i < 0) url
+    else {
+      val after = trimmedUrl.substring(i + 1)
+      trimmedUrl.substring(0, i + 1) + URLEncoder.encode(after, "UTF-8")
+    }
   }
 
-  def download(client: CloseableHttpClient, ctx: HttpClientContext)(iUrl: String): Option[String] = {
+  def download(client: CloseableHttpClient, ctx: HttpClientContext)(domain: String, iUrl: String): Option[String] = {
     var response: CloseableHttpResponse = null
-    val url = normalizeUrl(iUrl)
+    val url = normalizeUrl(domain, iUrl)
     try {
       logger.info(s"$iUrl -> $url")
       val get = new HttpGet(url)
@@ -61,7 +63,7 @@ object Downloader extends Logging {
             newUrl = null
         }
         if (newUrl != null)
-          return download(client, ctx)(newUrl)
+          return download(client, ctx)(domain, newUrl)
       }
     } catch {
       case e: Throwable =>
@@ -78,18 +80,18 @@ object Downloader extends Logging {
   /**
     * Download robots file
     *
-    * @param domainUrl needs to regard the format: http://domainname
+    * @param domainUrl needs to regard the format: http://domainname.com
     * @return
     */
   def downloadRobots(domainUrl: String): Option[String] = {
     downloadRobots(HttpClientContext.create())(s"$domainUrl")
   }
 
-  def downloadRobots(ctx: HttpClientContext)(domainUrl: String): Option[String] = {
-    download(newClient(), ctx)(s"$domainUrl/$RB")
+  def downloadRobots(ctx: HttpClientContext)(domain: String): Option[String] = {
+    download(newClient(), ctx)(domain, s"$domain/$RB")
   }
 
-  def downloadRobots(client: CloseableHttpClient, ctx: HttpClientContext)(domainUrl: String): Option[String] = {
-    download(client, ctx)(s"$domainUrl/$RB")
+  def downloadRobots(client: CloseableHttpClient, ctx: HttpClientContext)(domain: String): Option[String] = {
+    download(client, ctx)(domain, s"$domain/$RB")
   }
 }

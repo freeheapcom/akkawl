@@ -34,7 +34,7 @@ object Helper {
     Option(if (url != null) {
       val u = new URL(url)
       u.getProtocol
-      if (u.getPort == 80) {
+      if (u.getPort == -1 || u.getPort == 80 || u.getPort == 443) {
         (u.getProtocol, s"${u.getProtocol}://${u.getHost}", url)
       } else {
         (u.getProtocol, s"${u.getProtocol}://${u.getHost}:${u.getPort}", url)
@@ -48,7 +48,6 @@ object Helper {
   def isValidDomain(domain: String): Boolean = {
     urlValidator.isValid(domain)
   }
-
 
 
 }

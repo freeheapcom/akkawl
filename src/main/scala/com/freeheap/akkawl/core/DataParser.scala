@@ -2,6 +2,7 @@ package com.freeheap.akkawl.core
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.freeheap.akkawl.message.{CrawledPageData, StorageData}
+import com.freeheap.akkawl.util.Helper
 import com.kohlschutter.boilerpipe.extractors.ArticleExtractor
 import edu.uci.ics.crawler4j.parser.{HtmlParseData, ParseData}
 import org.jsoup.Jsoup
@@ -38,12 +39,20 @@ class DataParser(loader: ActorRef) extends Actor with ActorLogging {
   private[this] def extractOutLinks(protocol: String, domain: String, url: String, content: String): Set[String] = {
     val doc = Jsoup.parse(content)
     val links = doc.select("a[href]")
+    val p = "^\\w+\\:.*".r
     import scala.collection.JavaConversions._
-    links.map(link => {
+    links.flatMap(link => {
       val l = link.attr("href").trim
-
-      if (l.startsWith("http")) s"$domain/$l"
-      else l
+      if (!(l == null || l.isEmpty)) {
+        val validLink = if (p.findFirstIn(l).isDefined) l
+        else if (url.charAt(url.length - 1) == '/' || l.charAt(0) == '/' || url.endsWith("%2F") || l.startsWith("%2F") ||
+          url.charAt(url.length - 1) == '#' || l.charAt(0) == '#' || url.endsWith("%23") || l.startsWith("%23"))
+          s"$url$l"
+        else s"$url/$l"
+        if (Helper.isValidDomain(validLink)) {
+          Some(validLink)
+        } else None
+      } else None
     }).toSet
   }
 

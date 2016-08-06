@@ -1,6 +1,6 @@
 package com.freeheap.akkawl.core
 
-import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 import java.util.concurrent.{LinkedBlockingQueue, TimeUnit}
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
@@ -52,15 +52,19 @@ class Coordinator(rConn: String, rQueue: String, batchSize: Int = 100, periodic:
   override def receive: Receive = {
     case LogPeriodically =>
       val cur = deliverCounter.get()
-      log.info(s"Current queue size: ${q.size()}, deliver rate: ${(cur - oldDeliverCounter.get()) / periodic * 100}")
+      log.info(s"Current queue size: ${q.size()}, deliver rate: ${(cur - oldDeliverCounter.get()) / periodic * 1000}")
       oldDeliverCounter.set(cur)
     case PeriodicM =>
+      log.debug("Periodically get new urls")
       loadDataFromRedis()
     case ForceGetData =>
+      log.debug("Force getting new urls")
       loadDataFromRedis()
     case NeedMoreMsg =>
+      log.debug(s"${sender().path} asks for new message")
       deliverMsg(sender())
     case FinishCrawling(url, domain) =>
+      log.debug(s"${sender().path} has finished crawling $url")
       decrRate(domain)
       deliverMsg(sender())
   }
@@ -93,7 +97,7 @@ class Coordinator(rConn: String, rQueue: String, batchSize: Int = 100, periodic:
               incrRate(du._2)
             } else {
               pushQueue(url)
-              deliverMsg(s)
+              //              deliverMsg(s)
             }
           case None =>
         }
@@ -106,15 +110,18 @@ class Coordinator(rConn: String, rQueue: String, batchSize: Int = 100, periodic:
   private[this] def pushQueue(item: String) = q.offer(item)
 
   private[this] def loadDataFromRedis() = {
-    log.info("Loading data")
+    log.debug("Loading data")
+    val ai = new AtomicInteger()
     1.to(batchSize).filter(_ => q.size() < MAX_QUEUE_SIZE).foreach(_ => {
       val i = lq.popQueue(LinkQueue.getDataFromSingle)
       i match {
-        case Some(url) => q.add(url)
+        case Some(url) =>
+          ai.incrementAndGet()
+          q.add(url)
         case None =>
       }
     })
-    log.info("Loading data..done")
+    log.debug(s"Loading ${ai.get()} url(s)....done")
   }
 
 }
